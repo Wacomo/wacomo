@@ -13,6 +13,14 @@ app.get('/', (req, res) => {
     res.send('Hello, Warehouse Monitor!');
 });
 
+// checking github action with unit test
+app.get('/add', (req, res) => {
+    const a = parseInt(req.query.a);
+    const b = parseInt(req.query.b);
+    res.json({ result: a + b });
+});
+
+
 //Test database
 app.get('/testdb', async (req, res) => {
     try {
@@ -23,7 +31,9 @@ app.get('/testdb', async (req, res) => {
     }
 });
 
-const PORT = process.env.PORT || 3900;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// const PORT = process.env.PORT || 3900;
+// app.listen(PORT, () => {
+//     console.log(`Server is running on port ${PORT}`);
+// });
+
+module.exports = app;

@@ -9,4 +9,4 @@ RUN npm install
 COPY . .
 
 EXPOSE 3900
-CMD ["node", "index.js"]
+CMD ["node", "server.js"]
