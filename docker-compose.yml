@@ -2,7 +2,7 @@ version: '3'
 
 services:
   api:
-    build: ./thingy-API
+    build: ./Thingy-API
     ports:
       - "3900:3900"
     depends_on:
