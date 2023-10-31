@@ -1,9 +1,9 @@
 # Node
 node_modules/
+Thingy-API/node_modules/
 npm-debug.log
 
-# Docker
-*.env
+
 
 # Logs and databases
 *.log
