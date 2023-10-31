@@ -7,8 +7,12 @@ services:
       - "3900:3900"
     depends_on:
       - db
+      - mosquitto 
     environment:
       - DATABASE_URL=postgres://postgres:password@db:5432/thingydb
+      - MQTT_BROKER_URL=${MQTT_BROKER_URL}
+    env_file:
+      - ./.env
 
   db:
     image: postgres:13
@@ -19,5 +23,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  mosquitto:  
+    image: eclipse-mosquitto:latest
+    ports:
+      - "1883:1883"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_log:/mosquitto/log
+  
+  adminer:
+    image: adminer
+    ports:
+      - "9900:8080"
+    depends_on:
+      - db
+
 volumes:
   postgres_data:
+  mosquitto_data:  
+  mosquitto_log:

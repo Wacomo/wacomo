@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "migrate": "sequelize-cli db:migrate"
   },
   "jest": {
     "testEnvironment": "node"
@@ -18,13 +19,15 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
-    "mqtt": "^4.2.8", 
+    "mqtt": "^4.2.8",
     "pg": "^8.11.3",
-    "pg-promise": "^11.5.4"
+    "pg-hstore": "^2.3.4",
+    "pg-promise": "^11.5.4",
+    "sequelize": "^6.6.5"
   },
   "devDependencies": {
     "jest": "^29.7.0",
+    "sequelize-cli": "^6.6.1",
     "supertest": "^6.3.3"
   }
 }
-
