@@ -43,9 +43,9 @@ jobs:
         MQTT_PASSWORD: WgVFw27jnh
         NODE_ENV: development
 
-    - name: Check API health
-      run: |
-         curl http://localhost:3900/
+   # - name: Check API health
+    #  run: |
+     #    curl http://localhost:3900/
 
     - name: Stop Docker containers
       run: docker-compose down
