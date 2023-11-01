@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController');
+const userController = require('../controller/userController'); // Update the import path
 const authMiddleware = require('../middleware/authMiddleware');
 const { check, validationResult } = require('express-validator');
 
@@ -8,14 +8,13 @@ const { check, validationResult } = require('express-validator');
 router.post('/signup', [
     check('username').not().isEmpty().withMessage('Username is required'),
     check('email').isEmail().withMessage('Invalid email'),
-    check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+    check('hashedPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
 ], userController.signup);
 
 // Test GET route
 router.get('/test', (req, res) => {
     res.json({ message: 'GET request test successful' });
 });
-
 
 // Get user profile route (protected)
 router.get('/profile', authMiddleware, userController.getUserProfile);

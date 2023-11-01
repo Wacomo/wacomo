@@ -7,8 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       name: DataTypes.STRING,
       user_id: DataTypes.INTEGER,
-      threshold_id: DataTypes.INTEGER,
-      added_at: DataTypes.DATE
+      threshold_id: DataTypes.INTEGER
     });
 
     Device.associate = function(models) {
@@ -19,10 +18,6 @@ module.exports = (sequelize, DataTypes) => {
           foreignKey: 'threshold_id'
         });
       };
-
-      
     return Device;
-
-
   };
   

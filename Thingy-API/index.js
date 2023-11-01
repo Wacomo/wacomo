@@ -2,13 +2,16 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./models');
+const cors = require('cors');
 const thingyRoutes = require('./routes/thingyRoute');
+const userRoutes = require('./routes/userRoutes')
 
 
 const app = express();
 
 // Middleware to parse request bodies
 app.use(bodyParser.json());
+app.use(cors());
 
 // Sync all models
 db.sequelize.sync()
@@ -22,5 +25,6 @@ db.sequelize.sync()
 
 
 app.use('/', thingyRoutes);  // Mount the routes
+app.use('/user', userRoutes);  // Mount the routes
 
 module.exports = app; //Export app to server.js

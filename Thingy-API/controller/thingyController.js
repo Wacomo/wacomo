@@ -1,4 +1,3 @@
-const db = require('../db/db');
 const mqtt = require('mqtt');
 
 const mqttOptions = {
@@ -39,15 +38,6 @@ exports.connectThingy = (req, res) => {
 
 exports.home = (req, res) => {
     res.send('Hello, Warehouse Monitor!');
-};
-
-exports.testDatabase = async (req, res) => {
-    try {
-        const result = await db.any('SELECT NOW() as now');
-        res.json(result);
-    } catch (error) {
-        res.status(500).send(error.message || 'Internal Server Error');
-    }
 };
 
 exports.addNumbers = (req, res) => {

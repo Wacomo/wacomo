@@ -1,68 +1,76 @@
+const db = require('../models');
 const bcrypt = require('bcrypt');
-const db = require('../db/db');
-const { validationResult } = require('express-validator');
-const hash = require('../utils/hash');
 const jwt = require('jsonwebtoken');
+const { check, validationResult } = require('express-validator');
 const secretKey = process.env.JWT_SECRET_KEY;
 
-// User sign-up route
 const signup = async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        // Return a 400 status code for a bad request
+        return res.status(400).json({ message: 'Bad request', errors: errors.array() });
     }
 
-    const { username, email, password } = req.body;
-    const hashedPassword = await hash.hashPassword(password);
+    const { username, email, hashedPassword } = req.body;
 
     try {
-        const newUser = await db.one(
-            'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id',
-            [username, email, hashedPassword]
-        );
+        const hashPassword = await bcrypt.hash(hashedPassword, 10);
+
+        const newUser = await db.User.create({
+            username: username,
+            email : email,
+            hashedPassword: hashPassword, // Ensure you use the correct field name
+        });
 
         const token = jwt.sign({ userId: newUser.id }, secretKey, { expiresIn: '1h' });
 
         res.status(201).json({
             message: 'User created successfully',
             userId: newUser.id,
-            token: token
+            token: token,
         });
     } catch (error) {
+        // Log the error for debugging
+        console.error('Error in signup:', error);
+
+        // Return a 500 status code for an internal server error
         res.status(500).json({ message: 'User registration failed', error: error.message });
     }
 };
 
-// Get user profile by user ID
 const getUserProfile = async (req, res) => {
-    const userId = req.user.userId; // Extract the user ID from the JWT token
     try {
-        const user = await db.one('SELECT username, email FROM users WHERE id = $1', [userId]);
-        res.json(user);
+        const userProfile = await db.UserProfile.findOne({ where: { userId: req.user.userId } });
+        if (!userProfile) {
+            return res.status(404).json({ message: 'User profile not found' });
+        }
+
+        res.status(200).json({ message: 'User profile retrieved successfully', userProfile });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching user profile', error: error.message });
+        console.error('Error in getUserProfile:', error);
+        res.status(500).json({ message: 'Failed to retrieve user profile', error: error.message });
     }
 };
 
-// Update user profile by user ID
 const updateUserProfile = async (req, res) => {
-    const userId = req.user.userId; // Extract the user ID from the JWT token
-    const { username, email } = req.body;
-
+    // Implement logic to update the user's profile, e.g., in your database
     try {
-        // Update user profile information in the database
-        await db.none('UPDATE users SET username = $1, email = $2 WHERE id = $3', [username, email, userId]);
-        res.json({ message: 'User profile updated successfully' });
+        // Replace this with your actual logic to update the user's profile
+        const userId = req.user.userId;
+        const updatedData = req.body; // Data to update
+
+        // Use Sequelize's update function to update the user's profile
+        await db.UserProfile.update(updatedData, { where: { userId } });
+
+        res.status(200).json({ message: 'User profile updated successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Error updating user profile', error: error.message });
+        console.error('Error in updateUserProfile:', error);
+        res.status(500).json({ message: 'Failed to update user profile', error: error.message });
     }
 };
-
-// Other user-related functions
 
 module.exports = {
     signup,
     getUserProfile,
-    updateUserProfile,
-    // Other user-related functions
+    updateUserProfile, 
 };
