@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
         autoIncrement: true
       },
       name: DataTypes.STRING,
+      device_name: DataTypes.STRING,
       user_id: DataTypes.INTEGER,
       threshold_id: DataTypes.INTEGER
     });

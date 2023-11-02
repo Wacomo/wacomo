@@ -19,7 +19,7 @@ const signup = async (req, res) => {
         const newUser = await db.User.create({
             username: username,
             email : email,
-            hashedPassword: hashPassword, // Ensure you use the correct field name
+            hashedPassword: hashPassword, 
         });
 
         const token = jwt.sign({ userId: newUser.id }, secretKey, { expiresIn: '1h' });
@@ -38,39 +38,113 @@ const signup = async (req, res) => {
     }
 };
 
-const getUserProfile = async (req, res) => {
+const login = async (req, res) => {
+    const { email, password } = req.body;
+
     try {
-        const userProfile = await db.UserProfile.findOne({ where: { userId: req.user.userId } });
-        if (!userProfile) {
-            return res.status(404).json({ message: 'User profile not found' });
+        const user = await db.User.findOne({ where: { email: email } });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        res.status(200).json({ message: 'User profile retrieved successfully', userProfile });
+        const isMatch = await bcrypt.compare(password, user.hashedPassword);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        const token = jwt.sign({ userId: user.user_id }, secretKey, { expiresIn: '1h' });
+
+        res.json({
+            message: 'User logged in successfully',
+            token: token,
+        });
     } catch (error) {
-        console.error('Error in getUserProfile:', error);
-        res.status(500).json({ message: 'Failed to retrieve user profile', error: error.message });
+        console.error('Error in login:', error);
+        res.status(500).json({ message: 'Login failed', error: error.message });
     }
 };
 
-const updateUserProfile = async (req, res) => {
-    // Implement logic to update the user's profile, e.g., in your database
+const getCurrentUser = async (req, res) => {
     try {
-        // Replace this with your actual logic to update the user's profile
-        const userId = req.user.userId;
-        const updatedData = req.body; // Data to update
+        const user = await db.User.findByPk(req.user.userId, {
+            attributes: { exclude: ['hashedPassword'] } // Exclude the password from the result
+        });
 
-        // Use Sequelize's update function to update the user's profile
-        await db.UserProfile.update(updatedData, { where: { userId } });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-        res.status(200).json({ message: 'User profile updated successfully' });
+        res.json(user);
     } catch (error) {
-        console.error('Error in updateUserProfile:', error);
-        res.status(500).json({ message: 'Failed to update user profile', error: error.message });
+        console.error('Error getting current user:', error);
+        res.status(500).json({ message: 'Failed to get user details', error: error.message });
     }
 };
+
+const changePassword = async (req, res) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { oldPassword, newPassword } = req.body;
+
+    try {
+        const user = await db.User.findByPk(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.hashedPassword);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Old password does not match' });
+        }
+
+        const newHashedPassword = await bcrypt.hash(newPassword, 10);
+        user.hashedPassword = newHashedPassword;
+        await user.save();
+
+        res.json({ message: 'Password changed successfully' });
+    } catch (error) {
+        console.error('Error changing password:', error);
+        res.status(500).json({ message: 'Failed to change password', error: error.message });
+    }
+};
+
+const editProfile = async (req, res) => {
+    const { username, email } = req.body;
+
+    try {
+        const user = await db.User.findByPk(req.user.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (username && username !== user.username) {
+            user.username = username;
+        }
+
+        if (email && email !== user.email) {
+            user.email = email;
+        }
+
+        await user.save();
+
+        res.json({ message: 'Profile updated successfully', user: { id: user.id, username: user.username, email: user.email } });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({ message: 'Failed to update profile', error: error.message });
+    }
+};
+
+
+
 
 module.exports = {
     signup,
-    getUserProfile,
-    updateUserProfile, 
+    login,
+    getCurrentUser,
+    changePassword,
+    editProfile,
 };

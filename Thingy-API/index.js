@@ -24,7 +24,7 @@ db.sequelize.sync()
   });
 
 
-app.use('/', thingyRoutes);  // Mount the routes
-app.use('/user', userRoutes);  // Mount the routes
+app.use('/', thingyRoutes);  // Mount the test route
+app.use('/api/v1/user', userRoutes);  // Mount the user route
 
 module.exports = app; //Export app to server.js

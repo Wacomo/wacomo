@@ -1,27 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controller/userController'); // Update the import path
+const userController = require('../controller/userController'); 
 const authMiddleware = require('../middleware/authMiddleware');
 const { check, validationResult } = require('express-validator');
+const { validatePasswordChange } = require('../middleware/validators/passwordValidator');
+const { validateUserRegisteration } = require('../middleware/validators/signupValidator');
 
 // User sign-up route
-router.post('/signup', [
-    check('username').not().isEmpty().withMessage('Username is required'),
-    check('email').isEmail().withMessage('Invalid email'),
-    check('hashedPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
-], userController.signup);
+router.post('/signup', [...validateUserRegisteration], userController.signup);
 
-// Test GET route
-router.get('/test', (req, res) => {
-    res.json({ message: 'GET request test successful' });
-});
+// User login route
+router.post('/login', userController.login);
 
-// Get user profile route (protected)
-router.get('/profile', authMiddleware, userController.getUserProfile);
+// Fetch current user route
+router.get('/me', authMiddleware, userController.getCurrentUser);
 
-// Update user profile route (protected)
-router.put('/profile', authMiddleware, userController.updateUserProfile);
+// User password change route
+router.post('/change-password', [authMiddleware, ...validatePasswordChange], userController.changePassword);
 
-// Other user-related routes (if needed)
+// User profile edit route
+router.put('/edit-profile', authMiddleware, userController.editProfile);
+
 
 module.exports = router;

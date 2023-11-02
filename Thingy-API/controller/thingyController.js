@@ -31,7 +31,7 @@ exports.connectThingy = (req, res) => {
                 topic: topic,
                 message: message.toString()
             });
-            client.unsubscribe(topic); // Clean up after getting the message
+            client.unsubscribe(topic); 
         });
     });
 };
