@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // Sync all models
-db.sequelize.sync()
+db.sequelize.sync({alter:true})
   .then(() => {
     console.log('Database synced!');
     // ... start your server or other logic here ...
