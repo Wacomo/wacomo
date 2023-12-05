@@ -5,24 +5,20 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true
       },
-      name: DataTypes.STRING,
-      user_id: DataTypes.INTEGER,
-      threshold_id: DataTypes.INTEGER,
-      added_at: DataTypes.DATE
+      name: DataTypes.STRING, //is the device name or Id
+      location: DataTypes.STRING,
+      description: DataTypes.STRING,
+      user_id: DataTypes.INTEGER
     });
 
     Device.associate = function(models) {
         Device.belongsTo(models.User, {
           foreignKey: 'user_id'
         });
-        Device.belongsTo(models.Threshold, {
-          foreignKey: 'threshold_id'
+        Device.hasOne(models.Threshold, {
+          foreignKey: 'device_id'
         });
       };
-
-      
     return Device;
-
-
   };
   
