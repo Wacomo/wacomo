@@ -1,4 +1,4 @@
-**Restructured Idea: Warehouse Safety and Efficiency Monitor (WSEM)**
+**RWarehouse Safety and Efficiency Monitor (WSEM)**
 
 ---
 
@@ -27,10 +27,6 @@ To monitor and ensure optimal conditions within various warehouse sections, espe
 4. **Alert System**:
    - Immediate notifications, via email, when device data exceeds user-set thresholds.
    - Detailed alert information, including the device ID, device name, and specifics about the exceeded parameter.
-
-5. **Movement Monitoring**:
-   - Utilize the accelerometer data to detect unauthorized or unexpected movement of goods.
-   - Alerts for suspicious movements.
 
 ---
 
