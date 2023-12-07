@@ -1,6 +1,14 @@
 version: '3'
 
 services:
+  
+  client:
+    build: ./Thingy-Client
+    ports:
+      - "3899:80"  # Map port 3899 on the host to port 80 in the container
+    depends_on:
+      - api
+
   api:
     build: ./Thingy-API
     ports:
