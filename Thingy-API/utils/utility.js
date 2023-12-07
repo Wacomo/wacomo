@@ -5,5 +5,4 @@ const generateNotificationContent = ({ device_name, metric_data, time_of_anomaly
 
 module.exports = {
     generateNotificationContent,
-    
 };
