@@ -15,6 +15,7 @@
                       <td>Device name</td>
                       <td>Location</td>
                       <td></td>
+                      <td></td>
                       
                     </tr>
                   </thead>
@@ -24,7 +25,8 @@
                       <td>{{ device.name }}</td>
                       <td>{{ device.location }}</td>
                       <td><span class="text-blue-800 underline cursor-pointer" (click)="selectDevice(device)">Detail</span>
-                        
+                      </td>
+                      <td><span class="text-blue-800 underline cursor-pointer" (click)="openThresholdSettings(device.device_id)">Thresold settings</span>
                       </td>
                     </tr>
                   </tbody>

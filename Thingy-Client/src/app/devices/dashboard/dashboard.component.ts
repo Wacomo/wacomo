@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { DataTableDirective } from 'angular-datatables';
 import { Subject } from 'rxjs';
+import { Router } from '@angular/router';
 
 import { Device } from '../../models/device.model';
 import { DataService } from '../../services/data.service';
@@ -33,7 +34,7 @@ export class DashboardComponent implements OnInit,OnDestroy{
   pageSize: number = 10;
   currentPage: number = 0;
 
-  constructor(private deviceDataService: DataService,private renderer: Renderer2) {}
+  constructor(private deviceDataService: DataService,private renderer: Renderer2, private router: Router) {}
  
   ngOnInit(): void {
     this.dtoptions = {
@@ -63,6 +64,15 @@ export class DashboardComponent implements OnInit,OnDestroy{
     this.deviceDataService.refreshDevices();
   }
 
+  openThresholdSettings(deviceId: number | undefined): void {
+    if (typeof deviceId !== 'undefined') {
+      this.router.navigate(['/threshold', deviceId.toString()]);
+    } else {
+      // Handle the undefined case, maybe show an error message
+      console.log('the id is undefined');
+    }
+  }
+
 
   selectDevice(device: Device): void {
     //Update the selected user
@@ -84,7 +94,7 @@ export class DashboardComponent implements OnInit,OnDestroy{
   }
 
   rerender(): void {
-    if (this.dtElement.dtInstance) {
+    if (this.dtElement && this.dtElement.dtInstance) {
       this.dtElement.dtInstance.then((dtInstance: DataTables.Api) => {
         // Destroy the table first
         dtInstance.destroy();
@@ -92,7 +102,10 @@ export class DashboardComponent implements OnInit,OnDestroy{
         this.dtTrigger.next(undefined);
       });
     } else {
+      // Handle the case when dtElement is not yet available
+      // You might want to set a flag or call this method later
       this.dtTrigger.next(undefined);
     }
   }
+  
 }
