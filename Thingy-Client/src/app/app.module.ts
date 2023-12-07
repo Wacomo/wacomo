@@ -10,6 +10,10 @@ import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
+import {DashboardComponent} from './devices/dashboard/dashboard.component';
+import {AddDeviceFormComponent} from './devices/add-device-form/add-device-form.component';
+import {DeviceDetailsComponent} from './devices/device-details/device-details.component';
+import {DeviceUpperComponent} from './devices/device-upper/device-upper.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BackendInterceptor } from './interceptors/backend.interceptor';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
@@ -24,7 +28,11 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     LoginComponent, 
     RegisterComponent, 
     SidebarComponent,
-    HeaderComponent
+    HeaderComponent,
+    DashboardComponent,
+    AddDeviceFormComponent,
+    DeviceDetailsComponent,
+    DeviceUpperComponent
   ],
   imports: [
     BrowserModule,

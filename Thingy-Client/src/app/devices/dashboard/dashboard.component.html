@@ -1,1 +1,53 @@
-<p>dashboard works!</p>
+<div class="h-screen bg-white">
+    <div class=" h-full m-0">
+      <div class="flex h-full">
+        <app-sidebar></app-sidebar>
+        <div class="grow ml-[60px]">
+          <app-header></app-header>
+          <div class=" p-2 px-7 lg:px-6 pb-12 mt-[55px] ">
+            <div class="w-full p-2 pb-6 lg:p-6 border border-gray-300 rounded-xl my-4">
+              <app-device-upper (addDeviceClicked)="openModal()"></app-device-upper>
+              <div class="w-full overflow-auto px-0 lg:px-6 mt-8 pb-6">
+                <table datatable [dtOptions]="dtoptions" [dtTrigger]="dtTrigger" class="w-full text-sm">
+                  <thead class="text-gray-800 border-b border-gray-200 h-[50px]">
+                    <tr class="h-[50px] border-b border-gray-200" class="font-medium">
+                      <td>id</td>
+                      <td>Device name</td>
+                      <td>Location</td>
+                      <td></td>
+                      
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let device of devices" class="h-[40px] border-b border-gray-200">
+                      <td>{{ device.device_id }}</td>
+                      <td>{{ device.name }}</td>
+                      <td>{{ device.location }}</td>
+                      <td><span class="text-blue-800 underline cursor-pointer" (click)="selectDevice(device)">Detail</span>
+                        
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+  
+            </div>
+            <div #userDetailsSection *ngIf="selectedDevice">
+              <app-device-details [selectedDevice]="selectedDevice"></app-device-details>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="showModal" class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center"
+    aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeModal()"></div>
+      <div
+        class="inline-block align-middle bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full max-w-2xl max-h-[80vh]">
+        <app-add-device-form (close)="closeModal()"></app-add-device-form>
+      </div>
+    </div>
+  </div>
