@@ -11,10 +11,11 @@ const transporter = nodemailer.createTransport({
   });
 
 // Function to send alert email
-const sendAlertEmail = async (alert) => {
+const sendAlertEmail = async (alert, email) => {
+  const user_email = email;
   const mailOptions = {
     from: 'chimaprosper51@gmail.com',  
-    to: 'chimaprosperukoma@gmail.com',    
+    to: user_email,    
     subject: 'Anomaly Detected!',
     text: alert
     // text: `Anomaly detected on ${alert.device_name} at ${alert.time_of_anomaly}. Metric: ${alert.metric_data}, Value: ${alert.anomaly_value}`,

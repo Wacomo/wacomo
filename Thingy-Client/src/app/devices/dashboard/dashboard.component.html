@@ -16,6 +16,7 @@
                       <td>Location</td>
                       <td></td>
                       <td></td>
+                      <td></td>
                       
                     </tr>
                   </thead>
@@ -27,6 +28,8 @@
                       <td><span class="text-blue-800 underline cursor-pointer" (click)="selectDevice(device)">Detail</span>
                       </td>
                       <td><span class="text-blue-800 underline cursor-pointer" (click)="openThresholdSettings(device.device_id)">Thresold settings</span>
+                      </td>
+                      <td><span class="text-blue-800 underline cursor-pointer" (click)="openMetrics(device.device_id)">View Device Metrics</span>
                       </td>
                     </tr>
                   </tbody>
