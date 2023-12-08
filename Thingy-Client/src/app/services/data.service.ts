@@ -56,4 +56,13 @@ export class DataService {
     return this.http.post<Threshold>(`threshold/${deviceId}/threshold`, threshold);
   }
 
+
+  /**
+   * This is the Service section to perform crud operations for sending alerts
+   */
+
+  sendAlert(alertData: any): Observable<any> {
+    return this.http.post(`alerts`, alertData); // Adjust the URL as needed
+  }
+
 }

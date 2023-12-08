@@ -6,6 +6,8 @@ import { ChartConfiguration, ChartOptions } from "chart.js";
 import { ChartType } from 'chart.js';
 import { Threshold } from '../../models/threshold.model';
 import { WebSocketService } from '../../services/websocket.service';
+import { Subject, timer } from 'rxjs';
+import { debounce } from 'rxjs/operators';
 
 @Component({
   selector: 'app-metric',
@@ -15,11 +17,12 @@ import { WebSocketService } from '../../services/websocket.service';
 export class MetricComponent {
 
   deviceId: string | null = null;
-  device: Device | null = null; 
+  device: Device | null = null;
   threshold: Threshold | null = null;
+  private alertSubject = new Subject<any>();
 
 
-  public tempChartData: ChartConfiguration<'line'>['data']= {
+  public tempChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: []
   };
@@ -28,7 +31,7 @@ export class MetricComponent {
   };
 
 
-  public humidityChartData: ChartConfiguration<'line'>['data']= {
+  public humidityChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: []
   };
@@ -37,7 +40,7 @@ export class MetricComponent {
   };
 
 
-  public co2ChartData: ChartConfiguration<'line'>['data']= {
+  public co2ChartData: ChartConfiguration<'line'>['data'] = {
     labels: [],
     datasets: []
   };
@@ -50,15 +53,26 @@ export class MetricComponent {
     private dataService: DataService,
     private websocketService: WebSocketService
 
-  ) {}
+  ) { 
+
+    // Debounce alert sending
+    this.alertSubject.pipe(
+      debounce(() => timer(15000)) 
+    ).subscribe(alertData => {
+      this.dataService.sendAlert(alertData).subscribe({
+        next: response => console.log('Alert sent:', response),
+        error: error => console.error('Error sending alert:', error)
+      });
+    });
+  }
 
   ngOnInit(): void {
+    // Retrieve the device ID from the route and fetch device and threshold details
     this.deviceId = this.route.snapshot.paramMap.get('id');
 
     if (this.deviceId) {
       this.dataService.getDeviceById(this.deviceId).subscribe(device => {
         this.device = device;
-        // Assuming the device name is used as the device_id in WebSocket communication
         this.websocketService.connectToDevice(this.device?.name);
       });
 
@@ -67,6 +81,7 @@ export class MetricComponent {
         this.initializeChartData();
       });
 
+      // Subscribe to WebSocket data stream
       this.websocketService.getDataStream().subscribe(data => {
         this.updateChartData(data);
       });
@@ -83,9 +98,11 @@ export class MetricComponent {
   }
 
   private createChartData(minValue: number, maxValue: number): ChartConfiguration<'line'>['data'] {
+    // Create chart data with minimum and maximum values
     return {
       labels: ['Minimum', 'Maximum'],
       datasets: [
+        // Dataset for minimum value
         {
           data: [minValue, minValue],
           label: 'Minimum',
@@ -93,6 +110,7 @@ export class MetricComponent {
           backgroundColor: 'rgba(0, 0, 255, 0.3)',
           fill: false
         },
+        // Dataset for maximum value
         {
           data: [maxValue, maxValue],
           label: 'Maximum',
@@ -105,18 +123,68 @@ export class MetricComponent {
   }
 
   private updateChartData(data: any): void {
+
+    // Check if the incoming data exceeds the threshold and update the chart
+    let thresholdViolated = false;
+    let anomalyValue = 0;
+    let metricData = '';
+
+    // Update chart data based on the metric type (TEMP, HUMID, CO2_EQUIV)
+    // and check for threshold violation
     if (data.appId === 'TEMP') {
-      this.tempChartData = { ...this.tempChartData, datasets: this.updateChart(this.tempChartData.datasets, parseFloat(data.data)) };
+      anomalyValue = parseFloat(data.data);
+      metricData = 'Temperature';
+      if (this.threshold) {
+        if (anomalyValue < this.threshold.temp_min || anomalyValue > this.threshold.temp_max) {
+          thresholdViolated = true;
+        }
+      }
+
+      this.tempChartData = { ...this.tempChartData, datasets: this.updateChart(this.tempChartData.datasets, anomalyValue) };
     } else if (data.appId === 'HUMID') {
-      this.humidityChartData = { ...this.humidityChartData, datasets: this.updateChart(this.humidityChartData.datasets, parseFloat(data.data)) };
+      anomalyValue = parseFloat(data.data);
+      metricData = 'Humidity';
+      if (this.threshold) {
+        if (anomalyValue < this.threshold.humidity_min || anomalyValue > this.threshold.humidity_max) {
+          thresholdViolated = true;
+        }
+      }
+
+      this.humidityChartData = { ...this.humidityChartData, datasets: this.updateChart(this.humidityChartData.datasets, anomalyValue) };
+
     } else if (data.appId === 'CO2_EQUIV') {
-      this.co2ChartData = { ...this.co2ChartData, datasets: this.updateChart(this.co2ChartData.datasets, parseFloat(data.data)) };
+      anomalyValue = parseFloat(data.data);
+      metricData = 'Co2 Level';
+      if (this.threshold) {
+        if (anomalyValue < this.threshold.co2_min || anomalyValue > this.threshold.co2_max) {
+          thresholdViolated = true;
+        }
+      }
+
+      this.co2ChartData = { ...this.co2ChartData, datasets: this.updateChart(this.co2ChartData.datasets, anomalyValue) };
+    }
+
+    if (thresholdViolated) {
+      this.sendAlert(this.device?.name, metricData, anomalyValue);
     }
   }
-  
+
+  private sendAlert(deviceName: string | undefined, metricData: string, anomalyValue: number): void {
+    const alertData = {
+      device_name: deviceName,
+      metric_data: metricData,
+      time_of_anomaly: new Date().toISOString(),
+      anomaly_value: anomalyValue
+    };
+
+    // Emit the alert data to be debounced
+    this.alertSubject.next(alertData);
+  }
+
   private updateChart(datasets: ChartConfiguration<'line'>['data']['datasets'], currentValue: number): ChartConfiguration<'line'>['data']['datasets'] {
+    // Update the chart with the current value
     let newDatasets = [...datasets];
-  
+
     if (newDatasets.length === 3) {
       newDatasets[2] = { ...newDatasets[2], data: [currentValue, currentValue] };
     } else {
@@ -128,9 +196,9 @@ export class MetricComponent {
         fill: false
       });
     }
-  
+
     return newDatasets;
   }
 
-  
+
 }
