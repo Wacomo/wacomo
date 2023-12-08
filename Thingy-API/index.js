@@ -3,7 +3,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const db = require('./models');
 const cors = require('cors');
-const thingyRoutes = require('./routes/thingyRoute');
 const userRoutes = require('./routes/userRoutes');
 const deviceRoutes = require('./routes/deviceRoutes');
 const thresholdRoutes = require('./routes/thresholdRoutes');
@@ -27,7 +26,6 @@ db.sequelize.sync({alter:true})
   });
 
 
-app.use('/', thingyRoutes);  // Mount the test route
 app.use('/api/v1/user', userRoutes);  // Mount the user route
 app.use('/api/v1/device', deviceRoutes);  // Mount the device route
 app.use('/api/v1/threshold', thresholdRoutes);  // Mount the device route

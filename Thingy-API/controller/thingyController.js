@@ -1,4 +1,6 @@
+const WebSocket = require('ws');
 const mqtt = require('mqtt');
+
 
 const mqttOptions = {
     username: process.env.MQTT_USERNAME,
@@ -7,41 +9,46 @@ const mqttOptions = {
 
 const client = mqtt.connect(process.env.MQTT_BROKER_URL, mqttOptions);
 
-client.on('connect', function () {
+client.on('connect', () => {
     console.log('Connected to MQTT broker');
 });
 
-exports.connectThingy = (req, res) => {
-    const deviceId = req.query.device_id;
+const wss = new WebSocket.Server({ noServer: true }); // Create WebSocket server without an HTTP server
 
-    if (!deviceId) {
-        return res.status(400).send("device_id query param required");
-    }
+wss.on('connection', (ws) => {
+    let subscribedTopic = '';
 
-    const topic = `things/${deviceId}/shadow/update`;
+    ws.on('message', (message) => {
+        try {
+            const { device_id } = JSON.parse(message);
+            const topic = `things/${device_id}/shadow/update`;
 
-    client.subscribe(topic, function (err) {
-        if (err) {
-            return res.status(500).send(err.message);
-        }
-
-        // Fetch data for that device (for simplicity we'll assume data comes in after subscribing)
-        client.once('message', (topic, message) => {
-            res.send({
-                topic: topic,
-                message: message.toString()
+            client.subscribe(topic, (err) => {
+                if (!err) {
+                    subscribedTopic = topic;
+                } else {
+                    console.error(`Error subscribing to topic ${topic}:`, err);
+                }
             });
-            client.unsubscribe(topic); 
-        });
+        } catch (error) {
+            console.error('Error parsing message:', error);
+        }
     });
-};
 
-exports.home = (req, res) => {
-    res.send('Hello, Warehouse Monitor!');
-};
+    client.on('message', (topic, message) => {
+        if (topic === subscribedTopic) {
+            const payload = JSON.parse(message.toString());
+            ws.send(JSON.stringify(payload));
+        }
+    });
 
-exports.addNumbers = (req, res) => {
-    const a = parseInt(req.query.a);
-    const b = parseInt(req.query.b);
-    res.json({ result: a + b });
-};
+    ws.on('close', () => {
+        if (subscribedTopic) {
+            client.unsubscribe(subscribedTopic);
+            subscribedTopic = '';
+        }
+    });
+});
+
+// Export only the WebSocket server
+module.exports = wss;

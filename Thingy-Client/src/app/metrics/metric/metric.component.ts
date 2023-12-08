@@ -5,6 +5,7 @@ import { DataService } from '../../services/data.service';
 import { ChartConfiguration, ChartOptions } from "chart.js";
 import { ChartType } from 'chart.js';
 import { Threshold } from '../../models/threshold.model';
+import { WebSocketService } from '../../services/websocket.service';
 
 @Component({
   selector: 'app-metric',
@@ -46,89 +47,89 @@ export class MetricComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private dataService: DataService
+    private dataService: DataService,
+    private websocketService: WebSocketService
 
   ) {}
 
   ngOnInit(): void {
     this.deviceId = this.route.snapshot.paramMap.get('id');
-    console.log(this.deviceId);
 
     if (this.deviceId) {
       this.dataService.getDeviceById(this.deviceId).subscribe(device => {
         this.device = device;
+        // Assuming the device name is used as the device_id in WebSocket communication
+        this.websocketService.connectToDevice(this.device?.name);
       });
+
       this.dataService.getThreshold(this.deviceId).subscribe(threshold => {
         this.threshold = threshold;
-        this.prepareChartData();
+        this.initializeChartData();
+      });
+
+      this.websocketService.getDataStream().subscribe(data => {
+        this.updateChartData(data);
       });
     }
   }
 
-  private prepareChartData(): void {
+  private initializeChartData(): void {
+    // Initialize chart data with threshold values
     if (this.threshold) {
-      this.tempChartData = {
-        labels: ['Minimun', 'Maximum'], // Assuming you want to label the points as Min and Max
-        datasets: [
-          {
-            data: [this.threshold.temp_min, this.threshold.temp_min], // Min line
-            label: 'Minimum Temperature',
-            borderColor: 'blue',
-            backgroundColor: 'rgba(0, 0, 255, 0.3)',
-            fill: false
-          },
-          {
-            data: [this.threshold.temp_max, this.threshold.temp_max], // Max line
-            label: 'Minimum Temperature',
-            borderColor: 'red',
-            backgroundColor: 'rgba(255, 0, 0, 0.3)',
-            fill: false
-          }
-        ]
-      };
-
-      this.humidityChartData = {
-        labels: ['Minimum', 'Maximum'],
-        datasets: [
-          {
-            data: [this.threshold.humidity_min, this.threshold.humidity_min],
-            label: 'Minimum Humidity',
-            fill: false,
-            borderColor: 'blue',
-            backgroundColor: 'rgba(0, 0, 255, 0.3)'
-          },
-          {
-            data: [this.threshold.humidity_max, this.threshold.humidity_max],
-            label: 'Maximum Humidity',
-            fill: false,
-            borderColor: 'red',
-            backgroundColor: 'rgba(255,0,0,0.3)'
-          }
-
-        ]
-      
-      };
-
-      this.co2ChartData = {
-        labels: ['Minimum', 'Maximum'],
-        datasets: [
-          {
-            data: [this.threshold.co2_min, this.threshold.co2_min],
-            label: 'Minimum CO2',
-            fill: false,
-            borderColor: 'blue',
-            backgroundColor: 'rgba(0, 0, 255, 0.3)'
-          },
-          {
-            data: [this.threshold.co2_min, this.threshold.co2_min],
-            label: 'Maximum CO2',
-            fill: false,
-            borderColor: 'red',
-            backgroundColor: 'rgba(255,0,0,0.3)'
-          }
-        ]
-      };
+      this.tempChartData = this.createChartData(this.threshold.temp_min, this.threshold.temp_max);
+      this.humidityChartData = this.createChartData(this.threshold.humidity_min, this.threshold.humidity_max);
+      this.co2ChartData = this.createChartData(this.threshold.co2_min, this.threshold.co2_max);
     }
+  }
+
+  private createChartData(minValue: number, maxValue: number): ChartConfiguration<'line'>['data'] {
+    return {
+      labels: ['Minimum', 'Maximum'],
+      datasets: [
+        {
+          data: [minValue, minValue],
+          label: 'Minimum',
+          borderColor: 'blue',
+          backgroundColor: 'rgba(0, 0, 255, 0.3)',
+          fill: false
+        },
+        {
+          data: [maxValue, maxValue],
+          label: 'Maximum',
+          borderColor: 'red',
+          backgroundColor: 'rgba(255, 0, 0, 0.3)',
+          fill: false
+        }
+      ]
+    };
+  }
+
+  private updateChartData(data: any): void {
+    if (data.appId === 'TEMP') {
+      this.tempChartData = { ...this.tempChartData, datasets: this.updateChart(this.tempChartData.datasets, parseFloat(data.data)) };
+    } else if (data.appId === 'HUMID') {
+      this.humidityChartData = { ...this.humidityChartData, datasets: this.updateChart(this.humidityChartData.datasets, parseFloat(data.data)) };
+    } else if (data.appId === 'CO2_EQUIV') {
+      this.co2ChartData = { ...this.co2ChartData, datasets: this.updateChart(this.co2ChartData.datasets, parseFloat(data.data)) };
+    }
+  }
+  
+  private updateChart(datasets: ChartConfiguration<'line'>['data']['datasets'], currentValue: number): ChartConfiguration<'line'>['data']['datasets'] {
+    let newDatasets = [...datasets];
+  
+    if (newDatasets.length === 3) {
+      newDatasets[2] = { ...newDatasets[2], data: [currentValue, currentValue] };
+    } else {
+      newDatasets.push({
+        data: [currentValue, currentValue],
+        label: 'Current',
+        borderColor: 'green',
+        backgroundColor: 'rgba(0, 255, 0, 0.3)',
+        fill: false
+      });
+    }
+  
+    return newDatasets;
   }
 
   
