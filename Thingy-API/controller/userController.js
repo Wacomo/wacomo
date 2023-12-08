@@ -52,7 +52,12 @@ const login = async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        const token = jwt.sign({ userId: user.user_id }, secretKey, { expiresIn: '1h' });
+        // Include both userId and email in the JWT token
+        const tokenPayload = {
+            userId: user.user_id,
+            email: user.email  // Including the email in the token payload
+        };
+        const token = jwt.sign(tokenPayload, secretKey, { expiresIn: '1h' });
 
         res.json({
             message: 'User logged in successfully',
@@ -63,6 +68,7 @@ const login = async (req, res) => {
         res.status(500).json({ message: 'Login failed', error: error.message });
     }
 };
+
 
 const getCurrentUser = async (req, res) => {
     try {
