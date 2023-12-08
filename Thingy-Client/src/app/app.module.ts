@@ -6,6 +6,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { DataTablesModule } from 'angular-datatables';
+import { NgChartsModule , NgChartsConfiguration} from 'ng2-charts';
+
+
 import { SidebarComponent } from './shared/sidebar/sidebar.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { LoginComponent } from './auth/login/login.component';
@@ -15,6 +18,7 @@ import {AddDeviceFormComponent} from './devices/add-device-form/add-device-form.
 import {DeviceDetailsComponent} from './devices/device-details/device-details.component';
 import {DeviceUpperComponent} from './devices/device-upper/device-upper.component';
 import { ThresholdComponent } from './devices/threshold/threshold/threshold.component';
+import { MetricComponent } from './metrics/metric/metric.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { BackendInterceptor } from './interceptors/backend.interceptor';
 import { JwtInterceptor } from './interceptors/jwt.interceptor';
@@ -34,7 +38,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     AddDeviceFormComponent,
     DeviceDetailsComponent,
     DeviceUpperComponent,
-    ThresholdComponent
+    ThresholdComponent,
+    MetricComponent
   ],
   imports: [
     BrowserModule,
@@ -45,11 +50,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     DataTablesModule,
     MatPaginatorModule,
     BrowserAnimationsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgChartsModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: BackendInterceptor, multi: true },
+    { provide: NgChartsConfiguration, useValue: { generateColors: false }},
   ],
   bootstrap: [AppComponent]
 })

@@ -73,6 +73,15 @@ export class DashboardComponent implements OnInit,OnDestroy{
     }
   }
 
+  openMetrics(deviceId: number | undefined): void {
+    if (typeof deviceId !== 'undefined') {
+      this.router.navigate(['/metric', deviceId.toString()]);
+    } else {
+      // Handle the undefined case, maybe show an error message
+      console.log('the id is undefined');
+    }
+  }
+
 
   selectDevice(device: Device): void {
     //Update the selected user

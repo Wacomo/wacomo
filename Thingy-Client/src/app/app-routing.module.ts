@@ -5,6 +5,7 @@ import { RegisterComponent } from './auth/register/register.component';
 import { DashboardComponent } from './devices/dashboard/dashboard.component';
 import { ThresholdComponent } from './devices/threshold/threshold/threshold.component';
 import { AuthGuard } from './guards/auth.guard';
+import { MetricComponent } from './metrics/metric/metric.component';
 
 
 const routes: Routes = [
@@ -12,7 +13,8 @@ const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'register', component: RegisterComponent },
     { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-    { path: 'threshold/:id', component: ThresholdComponent, canActivate: [AuthGuard] }
+    { path: 'threshold/:id', component: ThresholdComponent, canActivate: [AuthGuard] },
+    { path: 'metric/:id', component: MetricComponent, canActivate: [AuthGuard] }
 
 ];
 
