@@ -14,13 +14,13 @@ RUN npm install --legacy-peer-deps
 COPY . /app
 
 # Build the project for production
-RUN npm run build -- --output-path=./dist/out
+RUN npm run build -- --output-path=./dist/thingy-client
 
 # Step 2: Use nginx to serve the static files
 FROM nginx:alpine
 
 # Copy the build output to replace the default nginx contents.
-COPY --from=builder /app/dist/out/ /usr/share/nginx/html
+COPY --from=builder /app/dist/thigy-client/ /usr/share/nginx/html
 
 # Copy the custom NGINX configuration file
 COPY ./default.conf /etc/nginx/conf.d/default.conf
