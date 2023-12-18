@@ -12,6 +12,10 @@ export class DataService {
   private devicesSubject = new BehaviorSubject<Device[]>([]);
   devices$ = this.devicesSubject.asObservable();
 
+  private alertsSubject = new BehaviorSubject<any[]>([]);
+  alerts$ = this.alertsSubject.asObservable();
+
+
   constructor(private http: HttpClient) { }
 
   /**
@@ -64,5 +68,12 @@ export class DataService {
   sendAlert(alertData: any): Observable<any> {
     return this.http.post(`alerts`, alertData); // Adjust the URL as needed
   }
+
+  // Add this function to get alerts
+  getAlerts(): Observable<any[]> {
+    return this.http.get<any[]>('alerts');
+  }
+
+
 
 }

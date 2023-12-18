@@ -72,8 +72,41 @@ const createAlert = async (req, res) => {
         res.status(500).json({ message: 'Failed to create alert', error: error.message });
     }
 };
+// getAlert Function
+const getAlert = async (req, res) => {
+    try {
+        const alertId = req.params.alertId;
+        const alert = await db.Alert.findByPk(alertId);
+
+        if (!alert) {
+            return res.status(404).json({ message: 'Alert not found' });
+        }
+
+        res.json(alert);
+    } catch (error) {
+        console.error('Error getting alert:', error);
+        res.status(500).json({ message: 'Failed to get alert', error: error.message });
+    }
+};
+const getAllAlerts = async (req, res) => {
+    try {
+        // Retrieve all alerts from the database
+        const alerts = await db.Alert.findAll({
+            where: { user_id: req.user.userId }, // Assuming you have user authentication
+        });
+
+        // Return the list of alerts
+        res.json(alerts);
+    } catch (error) {
+        console.error('Error getting all alerts:', error);
+        res.status(500).json({ message: 'Failed to get alerts', error: error.message });
+    }
+};
+
 
 // Export the createAlert function
 module.exports = {
     createAlert,
+    getAlert,
+    getAllAlerts
 };

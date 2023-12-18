@@ -1,76 +1,91 @@
 <div class="h-screen bg-white">
     <div class=" h-full m-0">
-      <div class="flex h-full">
-        <app-sidebar></app-sidebar>
-        <div class="grow ml-[60px]">
-          <app-header></app-header>
-          <div class=" p-2 px-7 lg:px-6 pb-12 mt-[55px] ">
-            <div class="w-full p-2 pb-6 lg:p-6 border border-gray-300 rounded-xl my-4">
-                <h1 class="text-xl">
-                    Threshold settings for {{device?.name}}
-                </h1>
-                
-                <div *ngIf="threshold; else noThresholdTemplate">
-                    <div *ngIf="showForm">
-                        <div class="my-6 space-y-4">                    
-                            <div class="grid lg:flex lg:justify-between lg:space-x-6">
-                                <div class="grid grow space-y-2">
-                                    <div><span class="text-xs">Temperature Minimum</span></div>
-                                    <input type="text" class="p-2 border border-gray-300 rounded-md"
-                                        id="temp_min" [(ngModel)]="threshold.temp_min" (ngModelChange)="updateField('temp_min', $event)"/>
+        <div class="flex h-full">
+            <app-sidebar></app-sidebar>
+            <div class="grow ml-[60px]">
+                <app-header></app-header>
+                <div class=" p-2 px-7 lg:px-6 pb-12 mt-[55px] ">
+                    <div class="w-full p-2 pb-6 lg:p-6 border border-gray-300 rounded-xl my-4">
+                        <h1 class="text-xl">
+                            Threshold settings for {{device?.name}}
+                        </h1>
+
+                        <div *ngIf="threshold; else noThresholdTemplate">
+                            <div *ngIf="showForm">
+                                <div class="text-xm p-4 " *ngIf="isLoading">
+                                    <em>Loading suggestions...</em>
                                 </div>
-                                <div class="grid grow space-y-2">
-                                    <div><span class="text-xs">Temperature Maximum</span></div>
-                                    <input type="text" class="p-2 border border-gray-300 rounded-md"
-                                        id="temp_max" [(ngModel)]="threshold.temp_max" (ngModelChange)="updateField('temp_max', $event)"/>
+
+                                <div *ngIf="openAiResponseHtml" [innerHTML]="openAiResponseHtml" class="bg-green-500 text-white p-4 rounded markdown-content">
+                                    <!-- The converted HTML content will be inserted here -->
+                                </div>
+                                <div class="my-6 space-y-4">
+                                    <div class="grid lg:flex lg:justify-between lg:space-x-6">
+                                        <div class="grid grow space-y-2">
+                                            <div><span class="text-xs">Temperature Minimum</span></div>
+                                            <input type="text" class="p-2 border border-gray-300 rounded-md"
+                                                id="temp_min" [(ngModel)]="threshold.temp_min"
+                                                (ngModelChange)="updateField('temp_min', $event)" />
+                                        </div>
+                                        <div class="grid grow space-y-2">
+                                            <div><span class="text-xs">Temperature Maximum</span></div>
+                                            <input type="text" class="p-2 border border-gray-300 rounded-md"
+                                                id="temp_max" [(ngModel)]="threshold.temp_max"
+                                                (ngModelChange)="updateField('temp_max', $event)" />
+                                        </div>
+                                    </div>
+                                    <div class="grid lg:flex lg:justify-between lg:space-x-6">
+                                        <div class="grid grow space-y-2">
+                                            <div><span class="text-xs">Humidity Minimum</span></div>
+                                            <input type="text" class="p-2 border border-gray-300 rounded-md"
+                                                id="humidity_min" [(ngModel)]="threshold.humidity_min"
+                                                (ngModelChange)="updateField('humidity_min', $event)" />
+                                        </div>
+                                        <div class="grid grow space-y-2">
+                                            <div><span class="text-xs">Humidity Maximum</span></div>
+                                            <input type="text" class="p-2 border border-gray-300 rounded-md"
+                                                id="humidity_max" [(ngModel)]="threshold.humidity_max"
+                                                (ngModelChange)="updateField('humidity_max', $event)" />
+                                        </div>
+                                    </div>
+                                    <div class="grid lg:flex lg:justify-between lg:space-x-6">
+                                        <div class="grid grow space-y-2">
+                                            <div><span class="text-xs">CO2 Minimum</span></div>
+                                            <input type="text" class="p-2 border border-gray-300 rounded-md"
+                                                id="co2_min" [(ngModel)]="threshold.co2_min"
+                                                (ngModelChange)="updateField('co2_min', $event)" />
+                                        </div>
+                                        <div class="grid grow space-y-2">
+                                            <div><span class="text-xs">CO2 Maximum</span></div>
+                                            <input type="text" class="p-2 border border-gray-300 rounded-md"
+                                                id="co2_max" [(ngModel)]="threshold.co2_max"
+                                                (ngModelChange)="updateField('co2_max', $event)" />
+                                        </div>
+                                    </div>
+                                    <div *ngIf="updateSuccess" class="bg-green-500 text-white p-4 rounded">
+                                        Threshold settings updated successfully!
+                                    </div>
+
+                                </div>
+                                <div>
+                                    <div class="flex justify-start space-x-6 my-12">
+                                        <button class="px-6 py-2 bg-gray-900 text-white text-sm rounded-sm"
+                                            (click)="updateThreshold()">Update Threshold</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="grid lg:flex lg:justify-between lg:space-x-6">
-                                <div class="grid grow space-y-2">
-                                    <div><span class="text-xs">Humidity Minimum</span></div>
-                                    <input type="text" class="p-2 border border-gray-300 rounded-md"
-                                        id="humidity_min" [(ngModel)]="threshold.humidity_min" (ngModelChange)="updateField('humidity_min', $event)"/>
-                                </div>
-                                <div class="grid grow space-y-2">
-                                    <div><span class="text-xs">Humidity Maximum</span></div>
-                                    <input type="text" class="p-2 border border-gray-300 rounded-md"
-                                        id="humidity_max" [(ngModel)]="threshold.humidity_max" (ngModelChange)="updateField('humidity_max', $event)"/>
-                                </div>
-                            </div>
-                            <div class="grid lg:flex lg:justify-between lg:space-x-6">
-                                <div class="grid grow space-y-2">
-                                    <div><span class="text-xs">CO2 Minimum</span></div>
-                                    <input type="text" class="p-2 border border-gray-300 rounded-md"
-                                        id="co2_min" [(ngModel)]="threshold.co2_min" (ngModelChange)="updateField('co2_min', $event)"/>
-                                </div>
-                                <div class="grid grow space-y-2">
-                                    <div><span class="text-xs">CO2 Maximum</span></div>
-                                    <input type="text" class="p-2 border border-gray-300 rounded-md"
-                                        id="co2_max" [(ngModel)]="threshold.co2_max" (ngModelChange)="updateField('co2_max', $event)"/>
-                                </div>
-                            </div>
-                            <div *ngIf="updateSuccess" class="bg-green-500 text-white p-4 rounded">
-                                Threshold settings updated successfully!
-                            </div>          
-                             
                         </div>
-                        <div>
-                            <div class="flex justify-start space-x-6 my-12">
-                                <button class="px-6 py-2 bg-gray-900 text-white text-sm rounded-sm" (click)="updateThreshold()">Update Threshold</button>
+
+                        <ng-template #noThresholdTemplate>
+                            <div>
+                                <p>No threshold settings found for this device. Please add them.</p>
+                                <button class="px-6 py-2 bg-gray-900 text-white text-sm rounded-sm"
+                                    (click)="toggleForm()">Add Threshold</button>
                             </div>
-                        </div>
+                        </ng-template>
                     </div>
                 </div>
-
-                <ng-template #noThresholdTemplate>
-                    <div>
-                      <p>No threshold settings found for this device. Please add them.</p>
-                      <button class="px-6 py-2 bg-gray-900 text-white text-sm rounded-sm" (click)="toggleForm()">Add Threshold</button>
-                    </div>
-                </ng-template>
             </div>
-          </div>
         </div>
-      </div>
     </div>
-  </div>
+</div>

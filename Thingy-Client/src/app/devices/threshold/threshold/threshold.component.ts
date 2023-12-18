@@ -3,6 +3,9 @@ import { ActivatedRoute } from '@angular/router';
 import { DataService } from '../../../services/data.service'; 
 import { Device } from '../../../models/device.model';
 import { Threshold } from '../../../models/threshold.model';
+import { OpenAiService } from '../../../services/open-ai.service';
+import * as marked from 'marked';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-threshold',
@@ -16,15 +19,39 @@ export class ThresholdComponent implements OnInit {
   updateSuccess: boolean = false;
   showForm: boolean = false;
 
+  openAiResponse: string | null = null;
+  isLoading: boolean = false;
+
+  openAiResponseHtml: SafeHtml | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private dataService: DataService,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private openAiService: OpenAiService,
+    private sanitizer: DomSanitizer
 
   ) {}
 
   toggleForm(): void {
+
+    if (this.device?.description) {
+      this.isLoading = true;
+      this.openAiService.getThresholdSuggestions(this.device.description).subscribe({
+        next: (response) => {
+          if (response.choices && response.choices.length > 0 && response.choices[0].message) {
+            this.openAiResponse = response.choices[0].message.content; // Access the content
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error fetching suggestions:', error);
+          this.isLoading = false;
+        }
+      });
+    }
     if (!this.threshold) {
+      console.log('This is where we create new threshold data');
       this.threshold = {
         temp_min: 0,
         temp_max: 0,
@@ -36,6 +63,11 @@ export class ThresholdComponent implements OnInit {
     }
     this.showForm = !this.showForm;
     this.changeDetectorRef.detectChanges();
+  }
+
+  private async handleOpenAiResponse(response: string): Promise<void> {
+    const markdownContent = await marked.parse(response); // Await the promise
+    this.openAiResponseHtml = this.sanitizer.bypassSecurityTrustHtml(markdownContent);
   }
 
   ngOnInit(): void {
@@ -50,6 +82,30 @@ export class ThresholdComponent implements OnInit {
       this.dataService.getThreshold(this.deviceId).subscribe({
         next: (data) => {
           this.threshold = data;
+          console.log('This is where we fetch threshold data ');
+          console.log(this.device?.description);
+
+
+          if (this.device?.description) {
+            this.isLoading = true;
+            this.openAiService.getThresholdSuggestions(this.device.description).subscribe({
+              next: (response) => {
+                if (response.choices && response.choices.length > 0 && response.choices[0].message) {
+                  this.handleOpenAiResponse(response.choices[0].message.content)
+                    .then(() => this.isLoading = false)
+                    .catch(error => {
+                      console.error('Error processing Markdown:', error);
+                      this.isLoading = false;
+                    });
+                }
+              },
+              error: (error) => {
+                console.error('Error fetching suggestions:', error);
+                this.isLoading = false;
+              }
+            });
+          }
+          
           this.showForm = true; // Automatically show the form if threshold data is found
         },
         error: (error) => {
@@ -58,6 +114,9 @@ export class ThresholdComponent implements OnInit {
         }
       });
     }
+
+    
+
   }
 
   updateThreshold(): void {

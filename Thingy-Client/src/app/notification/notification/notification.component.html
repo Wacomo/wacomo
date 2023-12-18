@@ -1,0 +1,31 @@
+<div class="h-screen bg-white">
+    <div class="h-full m-0">
+        <div class="flex h-full">
+            <app-sidebar></app-sidebar>
+            <div class="grow ml-[60px]">
+                <app-header></app-header>
+                <div class="p-2 px-7 lg:px-6 pb-12 mt-[55px]">
+                    <div *ngFor="let alert of alertData" class="w-full p-2 pb-6 lg:p-6 border border-gray-300 rounded-xl my-4">
+                        <div class="flex items-center">
+                            <!-- Alert Icon -->
+                            <div class="rounded-full bg-red-300 text-white p-2">
+                                <span class="material-icons" style="font-size: 24px;">info</span>
+                            </div>
+                            <!-- Header -->
+                            <div class="ml-4">
+                                <h2 class="text-xl font-bold text-gray-700">Anomaly Detected</h2>
+                            </div>
+                        </div>
+                        <!-- Anomaly Details -->
+                        <div class="mt-4">
+                            <p class="text-gray-600">Device name - {{ alert.device_name }}</p>
+                            <p class="text-gray-600">Metric Data Involved - {{ alert.metric_data }}</p>
+                            <p class="text-gray-600">Time of Anomaly - {{ alert.time_of_anomaly }}</p>
+                            <p class="text-gray-600">Anomaly Value - {{ alert.anomaly_value }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

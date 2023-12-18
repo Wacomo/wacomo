@@ -25,6 +25,7 @@ import { JwtInterceptor } from './interceptors/jwt.interceptor';
 
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NotificationComponent } from './notification/notification/notification.component';
 
 
 @NgModule({
@@ -39,7 +40,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     DeviceDetailsComponent,
     DeviceUpperComponent,
     ThresholdComponent,
-    MetricComponent
+    MetricComponent,
+    NotificationComponent
   ],
   imports: [
     BrowserModule,
