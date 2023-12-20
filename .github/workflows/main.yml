@@ -34,14 +34,6 @@ jobs:
       run: |
         docker-compose build
         docker-compose up -d
-      env:
-        POSTGRES_DB: thingydb
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: my_secure_password
-        MQTT_BROKER_URL: mqtt://163.172.151.151:1887
-        MQTT_USERNAME: yellow
-        MQTT_PASSWORD: WgVFw27jnh
-        NODE_ENV: development
 
    # - name: Check API health
     #  run: |
