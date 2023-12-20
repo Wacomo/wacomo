@@ -1,76 +1,57 @@
-**RWarehouse Safety and Efficiency Monitor (WSEM)**
+# Warehouse Safety and Efficiency Monitor (WSEM)
 
----
+## Overview
 
-### **Objective**:
+The Warehouse Safety and Efficiency Monitor (WSEM) is designed to ensure optimal conditions within various warehouse sections, particularly for sensitive goods. It tracks the condition of goods over a given threshold.
 
-To monitor and ensure optimal conditions within various warehouse sections, especially for sensitive goods. Also, track the movement of goods to detect unauthorized movements.
+## Objective
 
----
+The key objective of WSEM is to monitor and maintain ideal conditions in different warehouse sections, focusing on the safety and efficiency of goods storage and handling, especially for sensitive items.
 
-### **Features**:
+## Features
 
-1. **User Authentication**:
-   - Secure account creation and login using JSON Web Tokens (JWT).
-   - Profile management, including updating email preferences and password.
+### 1. User Authentication:
+   - Secure account creation and login with JSON Web Tokens (JWT).
+   - Profile management, including email preferences and password updates.
 
-2. **Device Management**:
-   - Add Thingy:91 devices to the user's account.
-   - Assign meaningful names to each device representing specific warehouse sections or goods categories.
-   - Optional parameter threshold settings for temperature, humidity, CO2, etc. based on the type of goods.
+### 2. Device Management:
+   - Integration of Thingy:91 devices into the user's account.
+   - Assigning descriptive names to each device for different warehouse sections or goods categories.
+   - Customizable threshold settings for parameters like temperature, humidity, CO2, etc., tailored to the type of goods stored.
 
-3. **Dashboard**:
-   - Real-time visualization of data provided by the Thingy:91 device for each warehouse section.
-   - Color-coded indicators for parameters within, nearing, or outside set thresholds.
-   - Historical data trends for analysis.
+### 3. Dashboard:
+   - Real-time data visualization from Thingy:91 devices for each warehouse section.
+   - Color-coded indicators displaying the status of parameters relative to set thresholds.
 
-4. **Alert System**:
-   - Immediate notifications, via email, when device data exceeds user-set thresholds.
-   - Detailed alert information, including the device ID, device name, and specifics about the exceeded parameter.
+### 4. Alert System:
+   - Immediate email notifications when device data surpasses user-defined thresholds.
+   - Comprehensive alert details including device ID, name, and specific parameter exceeded.
 
----
+## High-Level Design
 
-### **High-Level Design of WSEM System**:
+### 1. Thingy API Design
 
----
+#### Endpoints:
+- User registration and authentication.
+- Adding, listing, and editing Thingy:91 devices.
+- Setting and retrieving thresholds for device parameters.
+- Triggering and listing alerts based on threshold breaches.
 
-**1. Thingy API Design**:
+#### MQTT Integration:
+- Real-time data reception and processing from Thingy:91 devices via websocket.
+- Publish buzz sound request on the detection of anomaly for a given period.
 
-*Endpoints*:
+### 2. Thingy Client Design (Web Dashboard)
 
-- `POST /users/signup`: Register a new user.
-- `POST /users/login`: Authenticate a user.
-- `POST /devices`: Add a new Thingy:91 device.
-- `GET /devices`: List all devices added by a user.
-- `PUT /devices/{device_uuid}/parameters`: Set thresholds for device parameters.
-- `GET /devices/{device_uuid}/data`: Fetch real-time or historical data from a device.
-- `POST /alerts/`: Trigger alerts when data exceeds thresholds.
+- **User Authentication Page**: Login and sign-up functionalities.
+- **Dashboard/Devices Home**: Device overview, addition, and navigation.
+- **Device Details Page**: Data visualization and threshold management.
+- **Alerts Page**: Alert history.
 
-*MQTT Integration*:
+## Deployment and Local Setup
 
-- Subscribe to the `things/{device_uuid}/shadow/update` topic for each added device to receive real-time sensor data.
-- Process the received data, store it for visualization, and check against user-set thresholds to trigger alerts.
+For details on deploying and setting up the WSEM project on your local machine, please refer to the [`development.md`](development.md) document in this repository. It provides step-by-step instructions for configuring and running the application using Docker and Docker Compose.
 
----
+## Additional Documentation
 
-**2. Thingy Client Design (Web Dashboard)**:
-
-- **User Authentication Page**: Fields for username and password, buttons for login, and sign-up.
-  
-- **Dashboard Home**:
-  - List of devices with names and quick status icons.
-  - Option to add a new device.
-  - Navigation to settings, profile, and alerts history.
-  
-- **Device Details Page**:
-  - Real-time data visualizations (graphs, dials, or gauges) for each parameter.
-  - Option to set/edit parameter thresholds.
-  - History section showing data trends over time.
-  
-- **Alerts Page**:
-  - List of triggered alerts, including details on when the alert was triggered, which parameter, and by how much it exceeded.
-  - Option to mute/unmute specific alerts.
-
-- **Settings/Profile Page**:
-  - Update email, password, and other user information.
-  - Set global preferences for alerts.
+For an in-depth understanding of the WSEM system, including API documentation, please visit the external documentation link: [WSEM API Documentation](https://documenter.getpostman.com/view/11604430/2s9Ykq6zkF). This resource offers comprehensive guidance on API endpoints, request/response formats, and other technical details.
