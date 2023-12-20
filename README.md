@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Warehouse Safety and Efficiency Monitor (WSEM) is designed to ensure optimal conditions within various warehouse sections, particularly for sensitive goods. It tracks the movement of goods, identifying unauthorized movements and ensuring a high level of warehouse safety and efficiency.
+The Warehouse Safety and Efficiency Monitor (WSEM) is designed to ensure optimal conditions within various warehouse sections, particularly for sensitive goods. It tracks the condition of goods over a given threshold.
 
 ## Objective
 
